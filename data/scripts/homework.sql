@@ -41,7 +41,7 @@ label players with position OF as "Outfield", those with position "SS", "1B", "2
 and those with position "P" or "C" as "Battery". 
 Determine the number of putouts made by each of these three groups in 2016.*/
 
-WITH positions AS (
+/*WITH positions AS (
 	SELECT
 	po,
 	yearid,
@@ -56,7 +56,7 @@ SELECT
 	SUM(po) AS total_putouts
 FROM positions as p
 WHERE yearid = '2016'
-GROUP BY position_group;
+GROUP BY position_group;*/
 --Answer: Battery 41424, Infield 58934, Outfield 29560
 
 
@@ -181,23 +181,34 @@ LIMIT 5*/
 --8. Which managers have won the TSN Manager of the Year award in both the National League (NL) and 
 --the American League (AL)? Give their full name and the teams that they were managing when they 
 --won the award.
-SELECT  am.playerid,
+SELECT  CONCAT(p.namefirst, ' ', p.namelast),
 	   am.awardid,
-	   
-	   CONCAT(p.namefirst, ' ', p.namelast),
 	   mh.teamid,
 	   mh.lgid
+	   
 FROM awardsmanagers AS am
 JOIN people AS p
 ON am.playerid = p.playerid
 JOIN managershalf AS mh
 ON p.playerid = mh.playerid
 WHERE am.awardid = 'TSN Manager of the Year'
-GROUP BY mh.lgid, am.playerid, am.awardid, concat, mh.teamid
 ORDER BY concat
 
 
+--Or try this
 
-
-
+SELECT  CONCAT(p.namefirst, ' ', p.namelast),
+	   am.awardid,
+	   m.teamid,
+	   m.lgid
+	   
+FROM awardsmanagers AS am
+JOIN people AS p
+ON am.playerid = p.playerid
+JOIN managershalf AS mh
+ON p.playerid = mh.playerid
+JOIN managers AS m
+ON m.teamid = mh.teamid
+WHERE am.awardid = 'TSN Manager of the Year'
+ORDER BY concat
 
