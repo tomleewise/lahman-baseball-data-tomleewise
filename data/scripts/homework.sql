@@ -36,28 +36,30 @@ GROUP BY full_name, sa.salary, s.schoolname
 ORDER BY sa.salary DESC;*/
 --Answer: David Price
 
-/*Using the fielding table, group players into three groups based on their position: 
+/* 4. Using the fielding table, group players into three groups based on their position: 
 label players with position OF as "Outfield", those with position "SS", "1B", "2B", and "3B" as "Infield", 
 and those with position "P" or "C" as "Battery". 
 Determine the number of putouts made by each of these three groups in 2016.*/
 
+WITH positions AS (
+	SELECT
+	po,
+	yearid,
+	CASE WHEN pos IN ('OF') THEN 'Outfield'
+		WHEN pos IN ('SS','1B','2B','3B') THEN 'Infield'
+	 	WHEN pos IN ('P', 'C') THEN 'Battery'
+	 	END AS position_group
+FROM fielding)
 
-/*SELECT p.playerid, f.pos, 
-		CASE WHEN f.pos = 'OF' THEN 'Outfield'
-	WHEN f.pos = 'SS' THEN 'Infield'	
-	WHEN f.pos = '1B' THEN 'Infield'
-	WHEN f.pos = '2B' THEN 'Infield'
-	WHEN f.pos = '3B' THEN 'Infield'
-	WHEN f.pos = 'P' THEN 'Battery'
-	 WHEN f.pos = 'C'THEN 'Battery'
-	 ELSE null END AS g,
-	 f.po, COUNT(f.po) OVER(PARTITION BY g)
- 
-FROM fielding AS f
-JOIN people AS p
-ON p.playerid = f.playerid
-WHERE f.yearid = '2016'  
-ORDER BY g 
+SELECT
+	p.position_group,
+	SUM(po) AS total_putouts
+FROM positions as p
+WHERE yearid = '2016'
+GROUP BY position_group;
+--Answer: Battery 41424, Infield 58934, Outfield 29560
+
+
 --Cant figure out how to spread over position!!!!*/
 
 /*5. Find the average number of strikeouts per game by decade since 1920. 
@@ -146,12 +148,56 @@ divided by number of games). Only consider parks where there were at least 10 ga
 Report the park name, team name, and average attendance. Repeat for the lowest 5 average
 attendance.*/
 
-SELECT h.team, p.park_name, ROUND(AVG(h.attendance/h.games),2) AS avg_attendance
+/*SELECT h.team, p.park_name, ROUND(AVG(h.attendance/h.games),2) AS avg_attendance
 FROM homegames AS h
 JOIN parks AS p
 ON h.park = p.park
 WHERE year = '2016' AND h.games >= '10'
 GROUP BY h.team, p.park_name
-ORDER BY avg_attendance DESC
+ORDER BY avg_attendance DESC*/
+
+--Answer Part 1: 
+--Dodger Stadium, Los Angeles Dodgers w/45719
+--Busch Stadium III, St. Louis w/42524
+--Rogers Centre, Toronto w/41877
+--At&T Park, San Fransisco w/41546
+--Wrigley Field, Chicago Cubs w/39906
+
+/*SELECT h.team, p.park_name, ROUND(AVG(h.attendance/h.games),2) AS avg_attendance
+FROM homegames AS h
+JOIN parks AS p
+ON h.park = p.park
+WHERE year = '2016' AND h.games >= '10'
+GROUP BY h.team, p.park_name
+ORDER BY avg_attendance ASC
+LIMIT 5*/
+
+--Answer: Tropicana Field, Tampa Bay w/15878
+--Oakland-Alameda County Coliseum, Oakland w/18784
+--Progressive Field, Cleveland w/19650
+--Marlins Park, Miami w/21405
+--US Cellular Field Chicago White Sox w/21559
+
+--8. Which managers have won the TSN Manager of the Year award in both the National League (NL) and 
+--the American League (AL)? Give their full name and the teams that they were managing when they 
+--won the award.
+SELECT  am.playerid,
+	   am.awardid,
+	   
+	   CONCAT(p.namefirst, ' ', p.namelast),
+	   mh.teamid,
+	   mh.lgid
+FROM awardsmanagers AS am
+JOIN people AS p
+ON am.playerid = p.playerid
+JOIN managershalf AS mh
+ON p.playerid = mh.playerid
+WHERE am.awardid = 'TSN Manager of the Year'
+GROUP BY mh.lgid, am.playerid, am.awardid, concat, mh.teamid
+ORDER BY concat
+
+
+
+
 
 
