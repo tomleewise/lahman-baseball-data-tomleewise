@@ -1,13 +1,13 @@
 --1.What range of years for baseball games played does the provided database cover?
 
-/*SELECT MIN(yearid), MAX(yearid)
+SELECT MIN(yearid), MAX(yearid)
 FROM batting;
-Answer: 1871-2016*/
+Answer: 1871-2016
 
 --2.Find the name and height of the shortest player in the database. 
 --How many games did he play in? What is the name of the team for which he played?
 
-/*SELECT p.namefirst, p.namelast, MIN(p.height), a.g_all, t.name
+SELECT p.namefirst, p.namelast, MIN(p.height), a.g_all, t.name
 FROM people AS p
 JOIN appearances  AS a
 ON a.playerid = p.playerid
@@ -15,7 +15,7 @@ JOIN teams AS t
 ON a.teamid = t.teamid
 GROUP BY p.namefirst, p.namelast, a.g_all, p.height, t.name
 ORDER BY p.height
-LIMIT 1*/
+LIMIT 1
 
 --Answer: Eddie Gaedel at 43", played 1 game for the St. Louis Browns
 
@@ -24,8 +24,8 @@ LIMIT 1*/
 --they earned in the major leagues. Sort this list in descending order by the total salary earned. 
 --Which Vanderbilt player earned the most money in the majors?
 
-/*SELECT DISTINCT CONCAT( p.namefirst,' ',  p.namelast) AS full_name, s.schoolname, 
-SUM(sa.salary)
+SELECT DISTINCT CONCAT( p.namefirst,' ',  p.namelast) AS full_name, 
+SUM(DISTINCT sa.salary) AS total_salary
 FROM people AS p
 JOIN collegeplaying AS cp
 ON cp.playerid = p.playerid
@@ -34,8 +34,8 @@ ON s.schoolid = cp.schoolid
 JOIN salaries AS sa
 ON p.playerid = sa.playerid
 WHERE s.schoolname = 'Vanderbilt University'
-GROUP BY full_name,  s.schoolname
-ORDER BY SUM(sa.salary) DESC;*/
+GROUP BY full_name
+ORDER BY total_salary DESC;
 --Answer: David Price
 
 /* 4. Using the fielding table, group players into three groups based on their position: 
@@ -43,7 +43,7 @@ label players with position OF as "Outfield", those with position "SS", "1B", "2
 and those with position "P" or "C" as "Battery". 
 Determine the number of putouts made by each of these three groups in 2016.*/
 
-/*WITH positions AS (
+WITH positions AS (
 	SELECT
 	po,
 	yearid,
@@ -58,7 +58,7 @@ SELECT
 	SUM(po) AS total_putouts
 FROM positions as p
 WHERE yearid = '2016'
-GROUP BY position_group;*/
+GROUP BY position_group;
 --Answer: Battery 41424, Infield 58934, Outfield 29560
 
 
@@ -67,13 +67,14 @@ GROUP BY position_group;*/
 Round the numbers you report to 2 decimal places. 
 Do the same for home runs per game. Do you see any trends?*/
 
-/*SELECT ROUND(AVG(t.so),2) AS avg_so, ROUND(AVG(t.hr),2) AS hr_avg,
+SELECT ROUND(AVG(t.so),2) AS avg_so, ROUND(AVG(t.hr),2) AS hr_avg,
 FLOOR(yearid/10) * 10 AS decades
 
 FROM teams AS t
-
+WHERE yearid >= '1920'
 GROUP BY decades
-ORDER BY decades;*/
+ORDER BY decades;
+
 
 /* ANSWER: 32.04	1.86	"1920s"
 37.47	2.57	"1930s"
@@ -91,7 +92,7 @@ is measured as the percentage of stolen base attempts which are successful.
 (A stolen base attempt results either in a stolen base or being caught stealing.) 
 Consider only players who attempted at least 20 stolen bases*/
 
-/*SELECT DISTINCT p.playerid, CONCAT(p.namefirst, ' ', p.namelast),
+SELECT DISTINCT p.playerid, CONCAT(p.namefirst, ' ', p.namelast),
 t.sb , t.cs, ROUND(t.sb/(t.sb + t.cs),2) AS base_avg
 
 FROM teams AS t
@@ -111,11 +112,11 @@ Doing this will probably result in an unusually small number of wins for a world
 How often from 1970 – 2016 was it the case that a team with the most wins also won the world series? 
 What percentage of the time?*/
 
-/*SELECT teamid, MAX(w), WSWin, yearid
+SELECT teamid, MAX(w), WSWin, yearid
 FROM teams
 WHERE wswin IS NOT null AND yearid BETWEEN '1970' AND '2016' AND wswin = 'N'
 GROUP BY teamid, wswin, yearid
-ORDER BY MAX(w) DESC*/
+ORDER BY MAX(w) DESC
 
 /*SELECT teamid, MIN(w), wswin, yearid
 FROM teams
