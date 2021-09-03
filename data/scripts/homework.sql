@@ -171,22 +171,8 @@ LIMIT 5*/
 --8. Which managers have won the TSN Manager of the Year award in both the National League (NL) and 
 --the American League (AL)? Give their full name and the teams that they were managing when they 
 --won the award.
-SELECT  CONCAT(p.namefirst, ' ', p.namelast),
-	   am.awardid,
-	   mh.teamid,
-	   mh.lgid
-	   
-FROM awardsmanagers AS am
-JOIN people AS p
-ON am.playerid = p.playerid
-JOIN managershalf AS mh
-ON p.playerid = mh.playerid
-WHERE am.awardid = 'TSN Manager of the Year'
-ORDER BY concat
 
-
---Or try this
-CREATE TABLE nl (playerid, lgid FROM awardsmanagers WHERE lgid = 'NL')
+WITH awardsmanagers AS (SELECT playerid, lgid FROM awardsmanagers WHERE lgid = 'NL') 
 SELECT  CONCAT(p.namefirst, ' ', p.namelast) AS name,
 	   am.awardid,
 	   m.teamid,
@@ -200,8 +186,8 @@ JOIN managershalf AS mh
 ON p.playerid = mh.playerid
 JOIN managers AS m
 ON m.teamid = mh.teamid
-JOIN nl
-ON p.playerid = nl.playerid
+JOIN awardsmanagers AS amtwo
+ON p.playerid = amtwo.playerid
 WHERE am.awardid = 'TSN Manager of the Year'
 GROUP BY name, am.awardid, m.teamid, m.lgid, m.yearid
 ORDER BY  m.yearid
