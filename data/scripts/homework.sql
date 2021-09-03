@@ -14,7 +14,8 @@ ON a.playerid = p.playerid
 JOIN teams AS t
 ON a.teamid = t.teamid
 GROUP BY p.namefirst, p.namelast, a.g_all, p.height, t.name
-ORDER BY p.height*/
+ORDER BY p.height
+LIMIT 1*/
 
 --Answer: Eddie Gaedel at 43", played 1 game for the St. Louis Browns
 
@@ -23,7 +24,8 @@ ORDER BY p.height*/
 --they earned in the major leagues. Sort this list in descending order by the total salary earned. 
 --Which Vanderbilt player earned the most money in the majors?
 
-/*SELECT DISTINCT CONCAT( p.namefirst,' ',  p.namelast) AS full_name, s.schoolname, sa.salary
+/*SELECT DISTINCT CONCAT( p.namefirst,' ',  p.namelast) AS full_name, s.schoolname, 
+SUM(sa.salary)
 FROM people AS p
 JOIN collegeplaying AS cp
 ON cp.playerid = p.playerid
@@ -32,8 +34,8 @@ ON s.schoolid = cp.schoolid
 JOIN salaries AS sa
 ON p.playerid = sa.playerid
 WHERE s.schoolname = 'Vanderbilt University'
-GROUP BY full_name, sa.salary, s.schoolname
-ORDER BY sa.salary DESC;*/
+GROUP BY full_name,  s.schoolname
+ORDER BY SUM(sa.salary) DESC;*/
 --Answer: David Price
 
 /* 4. Using the fielding table, group players into three groups based on their position: 
@@ -60,28 +62,16 @@ GROUP BY position_group;*/
 --Answer: Battery 41424, Infield 58934, Outfield 29560
 
 
---Cant figure out how to spread over position!!!!*/
 
 /*5. Find the average number of strikeouts per game by decade since 1920. 
 Round the numbers you report to 2 decimal places. 
 Do the same for home runs per game. Do you see any trends?*/
 
-/*SELECT ROUND(AVG(p.so),2) AS avg_so, ROUND(AVG(b.hr),2) AS hr_avg,
-(CASE WHEN p.yearid BETWEEN '1920' AND '1929' THEN '1920s'
-WHEN p.yearid BETWEEN '1930' AND '1939' THEN '1930s'
- WHEN p.yearid BETWEEN '1940' AND '1949' THEN '1940s'
- WHEN p.yearid BETWEEN '1950' AND '1959' THEN '1950s'
- WHEN p.yearid BETWEEN '1960' AND '1969' THEN '1960s'
- WHEN p.yearid BETWEEN '1970' AND '1979' THEN '1970s'
- WHEN p.yearid BETWEEN '1980' AND '1989' THEN '1980s'
- WHEN p.yearid BETWEEN '1990' AND '1999' THEN '1990s'
- WHEN p.yearid BETWEEN '2000' AND '2009' THEN '2000s'
- WHEN p.yearid BETWEEN '2010' AND '2019' THEN '2010s'
- ELSE NULL END) AS decades
+/*SELECT ROUND(AVG(t.so),2) AS avg_so, ROUND(AVG(t.hr),2) AS hr_avg,
+FLOOR(yearid/10) * 10 AS decades
 
-FROM pitching AS p
-JOIN batting AS b
-ON p.yearid = b.yearid
+FROM teams AS t
+
 GROUP BY decades
 ORDER BY decades;*/
 
@@ -96,7 +86,7 @@ ORDER BY decades;*/
 46.55	3.83	"2000s"
 48.98	3.36	"2010s"*/
 
-/* 5.Find the player who had the most success stealing bases in 2016, where success 
+/* 6.Find the player who had the most success stealing bases in 2016, where success 
 is measured as the percentage of stolen base attempts which are successful. 
 (A stolen base attempt results either in a stolen base or being caught stealing.) 
 Consider only players who attempted at least 20 stolen bases*/
@@ -196,11 +186,12 @@ ORDER BY concat
 
 
 --Or try this
-
-SELECT  CONCAT(p.namefirst, ' ', p.namelast),
+CREATE TABLE nl (playerid, lgid FROM awardsmanagers WHERE lgid = 'NL')
+SELECT  CONCAT(p.namefirst, ' ', p.namelast) AS name,
 	   am.awardid,
 	   m.teamid,
-	   m.lgid
+	   m.lgid,
+	   m.yearid
 	   
 FROM awardsmanagers AS am
 JOIN people AS p
@@ -209,6 +200,9 @@ JOIN managershalf AS mh
 ON p.playerid = mh.playerid
 JOIN managers AS m
 ON m.teamid = mh.teamid
+JOIN nl
+ON p.playerid = nl.playerid
 WHERE am.awardid = 'TSN Manager of the Year'
-ORDER BY concat
+GROUP BY name, am.awardid, m.teamid, m.lgid, m.yearid
+ORDER BY  m.yearid
 
